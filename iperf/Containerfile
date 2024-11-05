@@ -1,0 +1,27 @@
+# syntax=docker/dockerfile:1
+
+###
+# iperf build
+##
+FROM ubuntu:22.04 AS build
+
+WORKDIR /tmp
+ARG IPERF2_SOURCE_URL="https://sourceforge.net/projects/iperf2/files/iperf-2.2.0.tar.gz"
+
+RUN apt update && apt -y upgrade && apt install -y build-essential wget 
+
+RUN mkdir -p /src && wget $IPERF2_SOURCE_URL -O iperf.tar.gz && tar -zxf iperf.tar.gz --strip-components=1 -C /src && rm -f iperf.tar.gz
+
+WORKDIR /src
+RUN ./configure && make
+
+###
+# Create result container
+##
+FROM ubuntu:22.04 
+COPY --from=build /src/src/iperf /usr/local/bin/iperf
+
+ENTRYPOINT ["/usr/local/bin/iperf"]
+
+# Run as server if no command passed
+CMD ["-s"]
