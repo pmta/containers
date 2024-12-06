@@ -1,2 +1,2 @@
 # containers
-Debug testing etc. small containers.
+Debug, testing etc. small containers.
